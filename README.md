@@ -6,7 +6,7 @@ The goal of the project was to combine embedded programming, hardware design, an
 
 ---
 
-## 🔧 Features
+## Features
 
 - Measures water level using a potentiometer  
 - Reads analog values with Pico 2 W  
@@ -19,7 +19,7 @@ The potentiometer acts as a variable resistor, producing an analog signal that i
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 - The potentiometer simulates water level changes (analog signal)  
 - Raspberry Pi Pico 2 W reads the value via ADC  
@@ -30,7 +30,7 @@ The potentiometer acts as a variable resistor, producing an analog signal that i
 
 ---
 
-## 🛠️ Technologies
+## Technologies
 
 - MicroPython  
 - Raspberry Pi Pico 2 W  
@@ -40,7 +40,7 @@ The potentiometer acts as a variable resistor, producing an analog signal that i
 
 ---
 
-## 📦 Hardware
+## Hardware
 
 - Raspberry Pi Pico 2 W  
 - Potentiometer  
