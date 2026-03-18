@@ -5,7 +5,7 @@ import time
 import machine
 
 AP_SSID = "PicoConfig"
-AP_PASSWORD = "pico_salasana"
+AP_PASSWORD = "password"
 AP_IP = "192.168.4.1"
 CONFIG_FILE = "wlan_config.txt"
 
@@ -30,25 +30,32 @@ def setup_ap():
     ap.active(True)
     ap.config(essid=AP_SSID, password=AP_PASSWORD)
     ap.ifconfig((AP_IP, '255.255.255.0', AP_IP, AP_IP))
-    print(f"AP käynnissä: {AP_SSID} – mene http://{AP_IP}")
+    print(f"AP running: {AP_SSID} – go to http://{AP_IP}")
 
 def save_and_reboot(ssid, password):
     with open(CONFIG_FILE, "w") as f:
         f.write(ssid + "\n" + password + "\n")
-    print("Tunnukset tallennettu – uudelleenkäynnistys...")
+    print("Credentials saved – rebooting...")
     time.sleep(2)
     machine.reset()
 
 def web_page():
-    return """<html><head><title>Pico W Setup</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    </head><body style="font-family:sans-serif;max-width:400px;margin:40px auto">
-    <h1>Pico W WLAN-konfigurointi</h1>
-    <form action="/" method="post">
-      <p><label>SSID:<br><input name="ssid" required style="width:100%"></label></p>
-      <p><label>Salasana:<br><input name="password" type="password" style="width:100%"></label></p>
-      <p><input type="submit" value="Tallenna & käynnistä uudelleen" style="font-size:1.2em;padding:10px"></p>
-    </form></body></html>"""
+    return """<html><head><title>Pico W Configuration</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <meta charset="utf-8">
+                </head>
+                <body>
+                  <h1>Pico W WLAN Configuration</h1>
+                  <form action="/save" method="post">
+                	<label for="ssid">Network name (SSID):</label><br>
+                	<input type="text" id="ssid" name="ssid" required><br><br>
+                	<label for="password">Password:</label><br>
+                	<input type="password" id="password" name="password"><br><br>
+                	<label for="url">Server URL:</label><br>
+                	<input type="text" id="url" name="url"><br><br>
+                	<input type="submit" value="Save and reset">
+                  </form>
+                </body></html>"""
 
 # --- Start AP and server ---
 setup_ap()
@@ -56,7 +63,7 @@ s = socket.socket()
 s.bind(('', 80))
 s.listen(1)
 
-print("Konfigurointipalvelin käynnissä – odotetaan yhteyttä...")
+print("Configuration server online - awaiting for connection...")
 
 while True:
     conn, addr = s.accept()
@@ -71,7 +78,7 @@ while True:
                 params[k] = url_decode(v)
         if "ssid" in params:
             save_and_reboot(params["ssid"], params.get("password", ""))
-        response = "HTTP/1.1 200 OK\r\n\r\n<h2>Tallennettu! Uudelleenkäynnistys...</h2>"
+        response = "HTTP/1.1 200 OK\r\n\r\n<h2>Saved! Rebooting...</h2>"
     else:
         response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + web_page()
 
