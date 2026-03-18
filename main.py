@@ -14,7 +14,7 @@ from pico_i2c_lcd import I2cLcd
 
 CONFIG_FILE = 'config.json'
 AP_SSID = "PicoConfig"
-AP_PASSWORD = "salasana"
+AP_PASSWORD = "password"
 AP_IP = '192.168.4.1'
 
 I2C_ADDR	 = 39
@@ -40,20 +40,20 @@ zero_point = None
 HTML = """
 <!DOCTYPE html>
 <html>
-<head><title>Pico W Konfigurointi</title>
+<head><title>Pico W Configuration</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta charset="utf-8">
 </head>
 <body>
-  <h1>Pico W WLAN Konfigurointi</h1>
+  <h1>Pico W WLAN Configuration</h1>
   <form action="/save" method="post">
-	<label for="ssid">Verkon nimi (SSID):</label><br>
+	<label for="ssid">Network name (SSID):</label><br>
 	<input type="text" id="ssid" name="ssid" required><br><br>
-	<label for="password">Salasana:</label><br>
+	<label for="password">Password:</label><br>
 	<input type="password" id="password" name="password"><br><br>
-	<label for="url">Palvelimen URL:</label><br>
+	<label for="url">Server URL:</label><br>
 	<input type="text" id="url" name="url"><br><br>
-	<input type="submit" value="Tallenna ja Käynnistä Uudelleen">
+	<input type="submit" value="Save and reset">
   </form>
 </body>
 </html>
@@ -73,11 +73,11 @@ def write_config(o):
 	try:
 		with open(CONFIG_FILE, 'w', encoding='UTF-8') as f:
 			f.write(json.dumps(o))
-		print("WLAN-tunnukset tallennettu. Käynnistetään uudelleen...")
+		print("WLAN-credentials saved. Rebooting...")
 		time.sleep(4)
 		machine.reset() # Restart
 	except Exception as e:
-		print(f"Virhe tallennuksessa: {e}")
+		print(f"Error in saving: {e}")
 
 def reset_config():
 	try:
@@ -125,8 +125,8 @@ def setup_access_point():
 	wlan.config(essid=AP_SSID, password=AP_PASSWORD)
 	# Set static IP
 	wlan.ifconfig((AP_IP, '255.255.255.0', AP_IP, AP_IP))
-	print(f"Access Point käynnistetty: SSID='{AP_SSID}' salasana='{AP_PASSWORD}'")
-	print(f"Yhdistä osoitteeseen: http://{AP_IP}")
+	print(f"Access Point online: SSID='{AP_SSID}' password='{AP_PASSWORD}'")
+	print(f"Connect to: http://{AP_IP}")
 	lcd.putstr(AP_IP)
 	return wlan
 
@@ -163,7 +163,7 @@ def run_ap():
 		try:
 			conn, addr = s.accept()
 			request = conn.recv(1024).decode()
-			print('Saapunut pyyntö:', request)
+			print('Request received:', request)
 
       # Check if POST-request to save config
 			if request.startswith('POST /save'):
@@ -179,10 +179,10 @@ def run_ap():
 						pass
 
 				if 'ssid' in params and 'password' in params:
-					print(f"Tallennetaan uudet tunnukset: SSID='{params['ssid']}'")
+					print(f"Saving new credentials: SSID='{params['ssid']}'")
 					write_config(params)
 			
-				response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Tunnukset tallennettu! Uudelleenkäynnistys käynnissä...</h1>"
+				response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Credentials saved! Restarting...</h1>"
 		
 			else:
 				response = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n' + HTML
@@ -192,7 +192,7 @@ def run_ap():
 
 		except OSError as e:
 			conn.close()
-			print('Yhteysvirhe:', e)
+			print('Connection error:', e)
 
 
 
@@ -251,7 +251,7 @@ def calibrate(pin):
 	global zero_point
 	zero_point = read_average_voltage(30, 20)
 	lcd.clear()
-	lcd.putstr("NOLLAUS TEHTY")
+	lcd.putstr("Reset done")
 	time.sleep(1.5)
 
 
