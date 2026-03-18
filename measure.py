@@ -96,12 +96,12 @@ def send_to_backend(height, temperature, voltage):
                 return result['alerts']
             return []
         else:
-            print(f"Backend virhe: {response.status_code}")
+            print(f"Backend error: {response.status_code}")
             response.close()
             return None
             
     except Exception as e:
-        print(f"Virhe lähetettäessä dataa: {e}")
+        print(f"Error sending data: {e}")
         return None
 
 # Blink LED for alert
@@ -116,17 +116,17 @@ def blink_alert_led(times=3):
 def show_alert_on_lcd(alert_count):
     lcd.clear()
     lcd.move_to(0, 0)
-    lcd.putstr("HALYTYS!")
+    lcd.putstr("ALERT!")
     lcd.move_to(0, 1)
-    lcd.putstr(f"{alert_count} halytyst")
+    lcd.putstr(f"{alert_count} alerts")
     time.sleep(2)
 
 # Main loop
-print("Mittausjärjestelmä käynnissä")
+print("Measuring")
 lcd.clear()
-lcd.putstr("Jarjestelma")
+lcd.putstr("System")
 lcd.move_to(0, 1)
-lcd.putstr("kaynnissa...")
+lcd.putstr("running...")
 time.sleep(2)
 
 while True:
@@ -143,33 +143,33 @@ while True:
         # Show data on LCD
         lcd.clear()
         lcd.move_to(0, 0)
-        lcd.putstr(f"Korkeus:{height:2.1f}cm")
+        lcd.putstr(f"Height:{height:2.1f}cm")
         lcd.move_to(0, 1)
-        lcd.putstr(f"Lampo: {temperature}C")
+        lcd.putstr(f"Temp: {temperature}C")
         
         # Send data to backend
         current_time = time.time()
         if current_time - last_send_time >= SEND_INTERVAL:
-            print(f"Lähetetään: H={height}cm, T={temperature}C")
+            print(f"Sending: H={height}cm, T={temperature}C")
             
             alerts = send_to_backend(height, temperature, avg_voltage)
             
             if alerts is not None:
-                print("Data lähetetty onnistuneesti")
+                print("Data sent succesfully")
                 
                 # Check for alerts
                 if len(alerts) > 0:
-                    print(f"HÄLYTYKSIÄ: {len(alerts)}")
+                    print(f"ALERTS: {len(alerts)}")
                     for alert in alerts:
                         print(f"  - {alert['message']}")
                     
                     blink_alert_led(len(alerts))
                     show_alert_on_lcd(len(alerts))
             else:
-                print("Virhe lähetettäessä dataa")
+                print("Error in sending data")
                 # Show alert on LCD
                 lcd.clear()
-                lcd.putstr("Lahetysvirhe")
+                lcd.putstr("Sent error")
                 time.sleep(1)
             
             last_send_time = current_time
@@ -177,9 +177,9 @@ while True:
         time.sleep(1) # Wait 1s before next measurement
         
     except Exception as e:
-        print(f"Virhe pääsilmukassa: {e}")
+        print(f"Error in main loop: {e}")
         lcd.clear()
-        lcd.putstr("VIRHE!")
+        lcd.putstr("ERROR!")
         lcd.move_to(0, 1)
         lcd.putstr(str(e)[:16])
         time.sleep(2)
