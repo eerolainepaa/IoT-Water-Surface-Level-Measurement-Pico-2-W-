@@ -45,4 +45,8 @@ The potentiometer acts as a variable resistor, producing an analog signal that i
 - Raspberry Pi Pico 2 W  
 - Potentiometer  
 - Breadboard and jumper wires  
-- (Optional) display  
+- (Optional) display
+
+## Circuit Diagram
+<img width="692" height="384" alt="Diagram" src="https://github.com/user-attachments/assets/dbb6b8da-3938-4d2d-a7c3-d5908909b499" />
+
